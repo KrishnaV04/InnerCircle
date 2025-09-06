@@ -6,12 +6,15 @@ export type Post = { id: string; author: string; createdAt: string; content: str
 type State = {
   posts: Post[];
   saved: Set<string>;
+  silentPosts: Post[];
 };
 
 type Ctx = {
   posts: Post[];
   saved: Set<string>;
+  silentPosts: Post[];
   addPost: (content: string, author: string) => void;
+  addSilentPost: (content: string, author: string) => void;
   toggleSaved: (id: string) => void;
 };
 
@@ -19,6 +22,7 @@ const PostsCtx = createContext<Ctx | null>(null);
 
 const LS_KEY = 'ic_posts_v1';
 const LS_SAVED = 'ic_saved_v1';
+const LS_SILENT = 'ic_silent_v1';
 
 const DEFAULT_POSTS: Post[] = [
   {
@@ -34,18 +38,21 @@ function loadState(): State {
   try {
     const p = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
     const s = JSON.parse(localStorage.getItem(LS_SAVED) || 'null');
+    const sp = JSON.parse(localStorage.getItem(LS_SILENT) || 'null');
     return {
       posts: Array.isArray(p) && p.length ? p : DEFAULT_POSTS,
       saved: new Set<string>(Array.isArray(s) ? s : []),
+      silentPosts: Array.isArray(sp) ? sp : [],
     };
   } catch {
-    return { posts: DEFAULT_POSTS, saved: new Set() };
+    return { posts: DEFAULT_POSTS, saved: new Set(), silentPosts: [] };
   }
 }
 
 export function PostsProvider({ children }: { children: ReactNode }) {
   const [posts, setPosts] = useState<Post[]>(() => loadState().posts);
   const [saved, setSaved] = useState<Set<string>>(() => loadState().saved);
+  const [silentPosts, setSilentPosts] = useState<Post[]>(() => loadState().silentPosts);
 
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(posts));
@@ -55,10 +62,20 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(LS_SAVED, JSON.stringify(Array.from(saved)));
   }, [saved]);
 
+  useEffect(() => {
+    localStorage.setItem(LS_SILENT, JSON.stringify(silentPosts));
+  }, [silentPosts]);
+
   const addPost = (content: string, author: string) => {
     const id = `${Date.now()}`;
     const createdAt = 'just now';
     setPosts((prev) => [{ id, author, createdAt, content }, ...prev]);
+  };
+
+  const addSilentPost = (content: string, author: string) => {
+    const id = `silent-${Date.now()}`;
+    const createdAt = 'just now';
+    setSilentPosts((prev) => [{ id, author, createdAt, content }, ...prev]);
   };
 
   const toggleSaved = (id: string) => {
@@ -69,7 +86,10 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const value = useMemo<Ctx>(() => ({ posts, saved, addPost, toggleSaved }), [posts, saved]);
+  const value = useMemo<Ctx>(
+    () => ({ posts, saved, silentPosts, addPost, addSilentPost, toggleSaved }),
+    [posts, saved, silentPosts],
+  );
 
   return <PostsCtx.Provider value={value}>{children}</PostsCtx.Provider>;
 }
@@ -78,4 +98,9 @@ export function usePosts() {
   const ctx = useContext(PostsCtx);
   if (!ctx) throw new Error('usePosts must be used within PostsProvider');
   return ctx;
+}
+
+export function useMySilentPosts(author: string) {
+  const ctx = usePosts();
+  return ctx.silentPosts.filter((p) => p.author === author);
 }

@@ -23,12 +23,13 @@ export function PostCard({
           <span className="text-sm font-semibold">{post.author}</span>
           <span className="text-xs text-[#9ca3af]">{post.createdAt}</span>
         </div>
-        <button
-          type="button"
-          onClick={() => onToggleSave?.(post.id)}
-          className="rounded-full border border-[#3a3a3a] bg-[#2a2a2a] p-1 hover:bg-[#333]"
-          aria-label={saved ? 'Unsave post' : 'Save post'}
-        >
+        {onToggleSave && (
+          <button
+            type="button"
+            onClick={() => onToggleSave(post.id)}
+            className="rounded-full border border-[#3a3a3a] bg-[#2a2a2a] p-1 hover:bg-[#333]"
+            aria-label={saved ? 'Unsave post' : 'Save post'}
+          >
           {saved ? (
             /* filled star */
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="#e5e7eb">
@@ -40,7 +41,8 @@ export function PostCard({
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.959a1 1 0 00.95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.376 2.455a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.376-2.455a1 1 0 00-1.175 0l-3.376 2.455c-.785.57-1.84-.196-1.54-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.05 9.386c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 00.95-.69l1.286-3.959z" />
             </svg>
           )}
-        </button>
+          </button>
+        )}
       </header>
       <p className="text-sm leading-relaxed text-[#d1d5db]">{post.content}</p>
     </article>

@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Local from './pages/Local';
 import Private from './pages/Private';
 import Saved from './pages/Saved';
+import PrivateMessages from './pages/PrivateMessages';
 
 function RequireLogin({ children }: { children: ReactElement }) {
   const loggedIn = typeof window !== 'undefined' && localStorage.getItem('ic_logged_in') === '1';
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/local" element={<RequireLogin><Local /></RequireLogin>} />
         <Route path="/saved" element={<RequireLogin><Saved /></RequireLogin>} />
         <Route path="/private" element={<RequireLogin><Private /></RequireLogin>} />
+        <Route path="/private/messages" element={<RequireLogin><PrivateMessages /></RequireLogin>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

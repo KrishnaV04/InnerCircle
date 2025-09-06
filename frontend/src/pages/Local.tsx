@@ -27,7 +27,7 @@ export default function Local() {
     <div className="min-h-screen">
       <Header active="local" />
       <div className="mx-auto flex max-w-screen-2xl">
-        <Sidebar onMakePost={handleMakePost} />
+        <Sidebar onMakePost={handleMakePost} mode="local" />
         <main className="flex-1 p-6">
           <div className="mb-4 flex items-center justify-between">
             <div></div>
