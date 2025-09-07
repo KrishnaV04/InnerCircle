@@ -5,9 +5,12 @@ import Local from './pages/Local';
 import Private from './pages/Private';
 import Saved from './pages/Saved';
 import PrivateMessages from './pages/PrivateMessages';
+import Chat from './pages/Chat';
 
 function RequireLogin({ children }: { children: ReactElement }) {
-  const loggedIn = typeof window !== 'undefined' && localStorage.getItem('ic_logged_in') === '1';
+  // use sessionStorage so each browser tab can maintain its own auth state
+  const loggedIn =
+    typeof window !== 'undefined' && sessionStorage.getItem('ic_logged_in') === '1';
   const loc = useLocation();
   if (!loggedIn) {
     return <Navigate to="/login" state={{ from: loc }} replace />;
@@ -24,6 +27,14 @@ export default function App() {
         <Route path="/saved" element={<RequireLogin><Saved /></RequireLogin>} />
         <Route path="/private" element={<RequireLogin><Private /></RequireLogin>} />
         <Route path="/private/messages" element={<RequireLogin><PrivateMessages /></RequireLogin>} />
+        <Route
+          path="/private/chat/:chatId"
+          element={
+            <RequireLogin>
+              <Chat />
+            </RequireLogin>
+          }
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
